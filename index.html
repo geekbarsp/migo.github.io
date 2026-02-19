@@ -9,22 +9,21 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
+        /* --- RESTORED ORIGINAL CORE STYLES --- */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            /* Hide the default system cursor everywhere */
             cursor: none !important;
         }
 
         body {
             font-family: Arial, sans-serif;
-            overflow-x: hidden;
+            overflow: hidden;
             background: url("12.gif") center center / cover no-repeat fixed;
             background-color: #050505;
         }
 
-        /* --- Sharp Black Triangle Cursor --- */
         #custom-cursor {
             width: 22px;
             height: 28px;
@@ -32,20 +31,18 @@
             position: fixed;
             top: 0;
             left: 0;
-            pointer-events: none; /* Crucial: allows hover effects on elements underneath */
+            pointer-events: none;
             z-index: 10000;
             clip-path: polygon(0% 0%, 100% 70%, 35% 70%, 35% 100%);
             filter: drop-shadow(0 0 1px rgba(255,255,255,0.3));
         }
 
-        /* --- Enhanced Dust/Soot Particles --- */
         .dust {
             position: fixed;
-            background: #111; 
+            background: #111;
             pointer-events: none;
             z-index: 9999;
             border-radius: 1px;
-            box-shadow: 0 0 3px rgba(0,0,0,0.8);
             animation: particleFade 1.2s ease-out forwards;
         }
 
@@ -76,7 +73,7 @@
             z-index: 2;
         }
 
-        /* Music Player */
+        /* --- MUSIC PLAYER (NO VOLUME BAR) --- */
         .music-player {
             position: fixed;
             bottom: 25px; right: 25px;
@@ -92,16 +89,15 @@
             z-index: 100;
         }
 
-        .music-icon { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
+        .music-icon { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; }
         .music-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .music-details { display: flex; flex-direction: column; font-size: 0.8rem; color: #ccc; line-height: 1.2; }
+        .music-details { display: flex; flex-direction: column; font-size: 0.8rem; color: #ccc; }
         .music-title { font-weight: bold; color: white; font-size: 0.85rem; }
-        .music-controls { display: flex; align-items: center; gap: 8px; margin-left: 10px; }
-        .music-controls button { background: none; border: none; color: white; font-size: 1rem; }
-        .volume-slider { width: 80px; }
+        .music-controls button { background: none; border: none; color: white; font-size: 1.1rem; }
 
-        /* Main Layout */
+        /* --- MAIN UI PANEL --- */
         .container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
         .ui-panel {
             padding: 50px 70px;
             background: rgba(255, 255, 255, 0.05);
@@ -110,35 +106,35 @@
             border: 1px solid rgba(255,255,255,0.15);
             text-align: center;
             color: white;
+            z-index: 10;
         }
 
-        /* --- MIGO HOVER GLOW EFFECT --- */
         .name {
             font-family: 'UnifrakturCook', cursive;
             font-size: 5rem;
             color: #707070;
             text-shadow: 0 0 5px #ffffff;
-            transition: all 0.4s ease; /* Smooth fade for the glow */
-            display: inline-block;
+            transition: all 0.4s ease;
+            pointer-events: auto;
         }
 
         .name:hover {
             color: #ffffff;
-            /* Multi-layered white glow */
             text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 40px #fff;
-            transform: scale(1.05); /* Slight pop when hovering */
+            transform: scale(1.05);
         }
 
         .subtitle {
             font-size: 1.2rem;
             color: #aaa;
-            margin-bottom: 3rem;
+            margin-bottom: 1rem;
             letter-spacing: 3px;
             text-transform: uppercase;
         }
 
         .accent-line { width: 200px; height: 3px; background: black; margin: 2rem auto; }
         .socials { display: flex; justify-content: center; gap: 2rem; }
+
         .social-link {
             width: 70px; height: 70px;
             border: 2px solid white;
@@ -149,53 +145,95 @@
             text-decoration: none;
             transition: 0.3s;
         }
-
         .social-link:hover { background: white; color: black; transform: scale(1.15); }
+
+        /* --- THE FLOATING PROFILE OVERLAY --- */
+        .profile-card {
+            position: fixed;
+            width: 320px;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px 20px;
+            text-align: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translate(-50%, -50%) scale(0.7);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+        }
+
+        .profile-card.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        .avatar-wrap { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
+        .avatar-img { width: 100%; height: 100%; border-radius: 50%; border: 2px solid #fff; object-fit: cover; }
+        .status-dot {
+            position: absolute; bottom: 5px; right: 5px;
+            width: 18px; height: 18px;
+            border-radius: 50%; border: 3px solid #000;
+        }
+
+        .prof-user { font-family: 'UnifrakturCook', cursive; font-size: 2.2rem; color: #fff; margin-bottom: 5px; }
+        .prof-activity { font-size: 0.85rem; color: #bbb; margin-bottom: 20px; min-height: 40px; }
+        .prof-activity b { color: #fff; }
+
+        .discord-btn {
+            display: block; width: 100%; padding: 12px; border-radius: 10px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: #fff; text-decoration: none; font-size: 0.75rem; font-weight: bold;
+            letter-spacing: 1px; transition: 0.3s;
+        }
+        .discord-btn:hover { background: #fff; color: #000; }
+
         .music-info { margin-top: 3rem; opacity: 0.7; font-size: 0.9rem; letter-spacing: 2px; }
     </style>
 </head>
 
 <body>
     <div id="custom-cursor"></div>
-
     <div class="bg-overlay"></div>
     <div class="scanlines"></div>
 
-    <div class="music-player">
-        <div class="music-icon">
-            <img src="123.jpg" alt="cover">
+    <div class="profile-card" id="profileCard">
+        <div class="avatar-wrap">
+            <img src="" alt="" class="avatar-img" id="profAvatar">
+            <div class="status-dot" id="profDot"></div>
         </div>
+        <div class="prof-user" id="profUsername">MIGO</div>
+        <div class="prof-activity" id="profActivity">Fetching status...</div>
+        <a href="https://discord.com/users/1420390943517048923" target="_blank" class="discord-btn">DISCORD PROFILE</a>
+    </div>
 
+    <div class="music-player">
+        <div class="music-icon"><img src="123.jpg" alt="cover"></div>
         <div class="music-details">
             <div class="music-title">Panadero</div>
             <div>Hev Abi x LK</div>
         </div>
-
         <div class="music-controls">
-            <button id="playBtn">
-                <i class="fas fa-play"></i>
-            </button>
-            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="30">
+            <button id="playBtn"><i class="fas fa-play"></i></button>
         </div>
     </div>
 
-    <audio id="bgMusic" loop preload="auto">
-        <source src="panadero.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bgMusic" loop preload="auto"><source src="panadero.mp3" type="audio/mpeg"></audio>
 
     <div class="container">
         <div class="ui-panel">
-            <div class="name">MIGO</div>
+            <div class="name" id="migo">MIGO</div>
             <div class="accent-line"></div>
             <div class="subtitle">SLEEZEEBK ELOHIM HEARTTHROB</div>
 
             <div class="socials">
-                <a href="https://www.youtube.com/@Migo.xxyzzz" class="social-link" target="_blank">
-                    <i class="fab fa-youtube"></i>
-                </a>
-                <a href="https://discord.com/users/1420390943517048923" class="social-link" target="_blank">
-                    <i class="fab fa-discord"></i>
-                </a>
+                <a href="https://www.youtube.com/@Migo.xxyzzz" class="social-link" target="_blank"><i class="fab fa-youtube"></i></a>
+                <a href="https://discord.com/users/1420390943517048923" class="social-link" target="_blank"><i class="fab fa-discord"></i></a>
             </div>
 
             <div class="music-info">RASCLATV MENU</div>
@@ -204,16 +242,14 @@
 
     <script>
         const cursor = document.getElementById('custom-cursor');
-        
-        // Update cursor position
+        const card = document.getElementById('profileCard');
+        const migoTrigger = document.getElementById('migo');
+
+        // Restore Cursor & Dust Particles
         document.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
-
-            // Denser dust effect
-            for (let i = 0; i < 2; i++) {
-                createDust(e.clientX, e.clientY);
-            }
+            for (let i = 0; i < 2; i++) createDust(e.clientX, e.clientY);
         });
 
         function createDust(x, y) {
@@ -228,39 +264,76 @@
             dust.style.setProperty('--dy', (Math.random() * 40 + 20) + 'px');
             dust.style.setProperty('--dr', (Math.random() * 360) + 'deg');
             document.body.appendChild(dust);
-            setTimeout(() => { dust.remove(); }, 1200);
+            setTimeout(() => dust.remove(), 1200);
         }
 
-        // --- Music Controls ---
+        // Pop-out Logic (Exactly at cursor location)
+        migoTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            card.style.left = e.clientX + 'px';
+            card.style.top = e.clientY + 'px';
+            card.classList.add('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!card.contains(e.target)) card.classList.remove('active');
+        });
+
+        // Restore Music (minus volume slider)
         const audio = document.getElementById('bgMusic');
         const playBtn = document.getElementById('playBtn');
-        const volumeSlider = document.getElementById('volumeSlider');
         let started = false;
 
-        function startMusic() {
+        document.addEventListener('click', () => {
             if (started) return;
             started = true;
-            audio.volume = 0;
+            audio.volume = 0.3;
             audio.play();
-            let vol = 0;
-            const fade = setInterval(() => {
-                vol += 0.02;
-                if (vol >= 0.3) { vol = 0.3; clearInterval(fade); }
-                audio.volume = vol;
-            }, 100);
             playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-        }
+        }, { once: true });
 
-        document.addEventListener('click', startMusic);
         playBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            if (audio.paused) { audio.play(); playBtn.innerHTML = '<i class="fas fa-pause"></i>'; }
-            else { audio.pause(); playBtn.innerHTML = '<i class="fas fa-play"></i>'; }
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audio.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
         });
 
-        volumeSlider.addEventListener('input', (e) => {
-            audio.volume = e.target.value / 100;
-        });
+        // Discord Activity (Lanyard API)
+        const userId = "1420390943517048923";
+        async function fetchLanyard() {
+            try {
+                const res = await fetch(`https://api.lanyard.rest/v1/users/${userId}`);
+                const { data } = await res.json();
+                
+                // Set Avatar and Username
+                document.getElementById('profAvatar').src = `https://cdn.discordapp.com/avatars/${userId}/${data.discord_user.avatar}.png?size=256`;
+                document.getElementById('profUsername').textContent = data.discord_user.username.toUpperCase();
+                
+                // Status dot color
+                const colors = { online: "#23a55a", idle: "#f0b232", dnd: "#f23f43", offline: "#80848e" };
+                document.getElementById('profDot').style.background = colors[data.discord_status] || "gray";
+
+                // Detailed Activity Logic
+                const game = data.activities.find(a => a.type === 0);
+                const spotify = data.activities.find(a => a.type === 2);
+                const custom = data.activities.find(a => a.type === 4);
+
+                let actHtml = "No current activity";
+                if (game) actHtml = `Playing <b>${game.name}</b>`;
+                else if (spotify) actHtml = `Listening to <b>${spotify.details}</b>`;
+                else if (custom) actHtml = custom.state;
+
+                document.getElementById('profActivity').innerHTML = actHtml;
+            } catch (err) { console.error(err); }
+        }
+
+        fetchLanyard();
+        setInterval(fetchLanyard, 15000);
     </script>
 </body>
 </html>
