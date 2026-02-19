@@ -73,14 +73,14 @@
             z-index: 2;
         }
 
-        /* --- MUSIC PLAYER (NO VOLUME BAR) --- */
+        /* --- UPDATED MUSIC PLAYER --- */
         .music-player {
             position: fixed;
             bottom: 25px; right: 25px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 18px;
+            gap: 15px;
+            padding: 12px 20px;
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(10px);
             border-radius: 40px;
@@ -91,9 +91,34 @@
 
         .music-icon { width: 40px; height: 40px; border-radius: 50%; overflow: hidden; }
         .music-icon img { width: 100%; height: 100%; object-fit: cover; }
-        .music-details { display: flex; flex-direction: column; font-size: 0.8rem; color: #ccc; }
+        
+        .music-details { display: flex; flex-direction: column; font-size: 0.8rem; color: #ccc; min-width: 100px; }
         .music-title { font-weight: bold; color: white; font-size: 0.85rem; }
-        .music-controls button { background: none; border: none; color: white; font-size: 1.1rem; }
+
+        /* Time and Seek Bar */
+        .seek-container { display: flex; align-items: center; gap: 10px; }
+        .time-display { font-size: 0.7rem; color: #888; white-space: nowrap; }
+        input[type="range"] { accent-color: #fff; cursor: none !important; }
+        .seek-slider { width: 100px; height: 4px; }
+
+        .music-controls { display: flex; align-items: center; gap: 10px; }
+        .music-controls button { background: none; border: none; color: white; font-size: 1.1rem; cursor: none !important; }
+
+        /* Vertical Volume Logic */
+        .volume-wrapper { position: relative; display: flex; flex-direction: column; align-items: center; }
+        .volume-popout {
+            display: none;
+            position: absolute;
+            bottom: 50px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            height: 120px;
+            z-index: 101;
+        }
+        .volume-popout.active { display: flex; }
+        .volume-slider { appearance: slider-vertical; width: 4px; height: 100%; }
 
         /* --- MAIN UI PANEL --- */
         .container { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
@@ -214,12 +239,24 @@
 
     <div class="music-player">
         <div class="music-icon"><img src="123.jpg" alt="cover"></div>
+        
         <div class="music-details">
-            <div class="music-title">Panadero</div>
-            <div>Hev Abi x LK</div>
+            <div class="music-title">Panadero 2 - Hev Abi x LK</div>
+            <div class="seek-container">
+                <input type="range" id="seekSlider" class="seek-slider" value="0" min="0" step="1">
+                <span class="time-display" id="timeDisplay">0:00 / 0:00</span>
+            </div>
         </div>
+
         <div class="music-controls">
             <button id="playBtn"><i class="fas fa-play"></i></button>
+            
+            <div class="volume-wrapper">
+                <div class="volume-popout" id="volumePopout">
+                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.3" orient="vertical">
+                </div>
+                <button id="volumeBtn"><i class="fas fa-volume-up"></i></button>
+            </div>
         </div>
     </div>
 
@@ -245,7 +282,6 @@
         const card = document.getElementById('profileCard');
         const migoTrigger = document.getElementById('migo');
 
-        // Restore Cursor & Dust Particles
         document.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
@@ -267,7 +303,6 @@
             setTimeout(() => dust.remove(), 1200);
         }
 
-        // Pop-out Logic (Exactly at cursor location)
         migoTrigger.addEventListener('click', (e) => {
             e.stopPropagation();
             card.style.left = e.clientX + 'px';
@@ -277,12 +312,26 @@
 
         document.addEventListener('click', (e) => {
             if (!card.contains(e.target)) card.classList.remove('active');
+            if (!volumePopout.contains(e.target) && e.target !== volumeBtn && !volumeBtn.contains(e.target)) {
+                volumePopout.classList.remove('active');
+            }
         });
 
-        // Restore Music (minus volume slider)
+        // --- MUSIC LOGIC ---
         const audio = document.getElementById('bgMusic');
         const playBtn = document.getElementById('playBtn');
+        const seekSlider = document.getElementById('seekSlider');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const volumeBtn = document.getElementById('volumeBtn');
+        const volumePopout = document.getElementById('volumePopout');
+        const volumeSlider = document.getElementById('volumeSlider');
         let started = false;
+
+        function formatTime(secs) {
+            const mins = Math.floor(secs / 60);
+            const s = Math.floor(secs % 60);
+            return `${mins}:${s < 10 ? '0' : ''}${s}`;
+        }
 
         document.addEventListener('click', () => {
             if (started) return;
@@ -303,31 +352,47 @@
             }
         });
 
-        // Discord Activity (Lanyard API)
+        // Volume Toggle Logic
+        volumeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            volumePopout.classList.toggle('active');
+        });
+
+        volumeSlider.addEventListener('input', () => {
+            audio.volume = volumeSlider.value;
+        });
+
+        // Progress/Seek Logic
+        audio.addEventListener('loadedmetadata', () => {
+            seekSlider.max = audio.duration;
+        });
+
+        audio.addEventListener('timeupdate', () => {
+            seekSlider.value = audio.currentTime;
+            timeDisplay.innerText = `${formatTime(audio.currentTime)} / ${formatTime(audio.duration || 0)}`;
+        });
+
+        seekSlider.addEventListener('input', () => {
+            audio.currentTime = seekSlider.value;
+        });
+
+        // Discord Activity
         const userId = "1420390943517048923";
         async function fetchLanyard() {
             try {
                 const res = await fetch(`https://api.lanyard.rest/v1/users/${userId}`);
                 const { data } = await res.json();
-                
-                // Set Avatar and Username
                 document.getElementById('profAvatar').src = `https://cdn.discordapp.com/avatars/${userId}/${data.discord_user.avatar}.png?size=256`;
                 document.getElementById('profUsername').textContent = data.discord_user.username.toUpperCase();
-                
-                // Status dot color
                 const colors = { online: "#23a55a", idle: "#f0b232", dnd: "#f23f43", offline: "#80848e" };
                 document.getElementById('profDot').style.background = colors[data.discord_status] || "gray";
-
-                // Detailed Activity Logic
                 const game = data.activities.find(a => a.type === 0);
                 const spotify = data.activities.find(a => a.type === 2);
                 const custom = data.activities.find(a => a.type === 4);
-
                 let actHtml = "No current activity";
                 if (game) actHtml = `Playing <b>${game.name}</b>`;
                 else if (spotify) actHtml = `Listening to <b>${spotify.details}</b>`;
                 else if (custom) actHtml = custom.state;
-
                 document.getElementById('profActivity').innerHTML = actHtml;
             } catch (err) { console.error(err); }
         }
