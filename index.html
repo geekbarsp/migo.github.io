@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MIGO</title>
 
-    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -14,12 +13,55 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            /* Completely hide the default system cursor */
+            cursor: none !important;
         }
 
         body {
             font-family: Arial, sans-serif;
             overflow-x: hidden;
             background: url("12.gif") center center / cover no-repeat fixed;
+            background-color: #050505;
+        }
+
+        /* --- Sharp Black Triangle Cursor --- */
+        #custom-cursor {
+            width: 22px;
+            height: 28px;
+            background: #000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 10000;
+            /* Standard cursor angle polygon */
+            clip-path: polygon(0% 0%, 100% 70%, 35% 70%, 35% 100%);
+            /* Subtle glow to keep it visible against pure black backgrounds */
+            filter: drop-shadow(0 0 1px rgba(255,255,255,0.3));
+            transform: translate(0, 0); 
+        }
+
+        /* --- Enhanced Dust/Soot Particles --- */
+        .dust {
+            position: fixed;
+            background: #111; /* Dark soot color */
+            pointer-events: none;
+            z-index: 9999;
+            border-radius: 1px; /* Slightly jagged, not perfect circles */
+            box-shadow: 0 0 3px rgba(0,0,0,0.8);
+            animation: particleFade 1.2s ease-out forwards;
+        }
+
+        @keyframes particleFade {
+            0% {
+                transform: translate(0, 0) rotate(0deg) scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                /* Drift downward and to the side like real dust */
+                transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(0);
+                opacity: 0;
+            }
         }
 
         .bg-overlay {
@@ -104,12 +146,10 @@
             border: none;
             color: white;
             font-size: 1rem;
-            cursor: pointer;
         }
 
         .volume-slider {
             width: 80px;
-            cursor: pointer;
         }
 
         /* Main Layout */
@@ -188,10 +228,11 @@
 </head>
 
 <body>
+    <div id="custom-cursor"></div>
+
     <div class="bg-overlay"></div>
     <div class="scanlines"></div>
 
-    <!-- Music Player -->
     <div class="music-player">
         <div class="music-icon">
             <img src="123.jpg" alt="cover">
@@ -214,7 +255,6 @@
         <source src="panadero.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- Main Content -->
     <div class="container">
         <div class="ui-panel">
             <div class="name">MIGO</div>
@@ -225,51 +265,77 @@
                 <a href="https://www.youtube.com/@Migo.xxyzzz" class="social-link" target="_blank">
                     <i class="fab fa-youtube"></i>
                 </a>
-
                 <a href="https://discord.com/users/1420390943517048923" class="social-link" target="_blank">
                     <i class="fab fa-discord"></i>
                 </a>
             </div>
 
-            <div class="music-info">
-                RASCLATV MENU
-            </div>
+            <div class="music-info">RASCLATV MENU</div>
         </div>
     </div>
 
     <script>
+        const cursor = document.getElementById('custom-cursor');
+        
+        // Update cursor position
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+
+            // Create multiple particles for a "denser" dust look
+            for (let i = 0; i < 2; i++) {
+                createDust(e.clientX, e.clientY);
+            }
+        });
+
+        function createDust(x, y) {
+            const dust = document.createElement('div');
+            dust.className = 'dust';
+            
+            // Randomize particle size (3px to 10px)
+            const size = Math.random() * 7 + 3;
+            dust.style.width = size + 'px';
+            dust.style.height = size + 'px';
+            
+            // Position near cursor with random offset
+            dust.style.left = (x + (Math.random() - 0.5) * 15) + 'px';
+            dust.style.top = (y + (Math.random() - 0.5) * 15) + 'px';
+            
+            // Random movement variables for the animation
+            dust.style.setProperty('--dx', (Math.random() - 0.5) * 50 + 'px'); // Horizontal drift
+            dust.style.setProperty('--dy', (Math.random() * 40 + 20) + 'px');  // Fall downward
+            dust.style.setProperty('--dr', (Math.random() * 360) + 'deg');      // Rotation
+            
+            document.body.appendChild(dust);
+
+            setTimeout(() => {
+                dust.remove();
+            }, 1200);
+        }
+
+        // --- Music Controls ---
         const audio = document.getElementById('bgMusic');
         const playBtn = document.getElementById('playBtn');
         const volumeSlider = document.getElementById('volumeSlider');
-
         let started = false;
 
         function startMusic() {
             if (started) return;
             started = true;
-
             audio.volume = 0;
             audio.play();
-
             let vol = 0;
             const fade = setInterval(() => {
                 vol += 0.02;
-                if (vol >= 0.3) {
-                    vol = 0.3;
-                    clearInterval(fade);
-                }
+                if (vol >= 0.3) { vol = 0.3; clearInterval(fade); }
                 audio.volume = vol;
             }, 100);
-
             playBtn.innerHTML = '<i class="fas fa-pause"></i>';
         }
 
         document.addEventListener('click', startMusic);
-        document.addEventListener('keydown', startMusic);
-        document.addEventListener('scroll', startMusic);
-
-        // Play / pause button
-        playBtn.addEventListener('click', () => {
+        playBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent startMusic from firing again
             if (audio.paused) {
                 audio.play();
                 playBtn.innerHTML = '<i class="fas fa-pause"></i>';
@@ -279,7 +345,6 @@
             }
         });
 
-        // Volume slider
         volumeSlider.addEventListener('input', (e) => {
             audio.volume = e.target.value / 100;
         });
