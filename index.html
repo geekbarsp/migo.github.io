@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIGO</title>
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            overflow-x: hidden;
+            background: url("12.gif") center center / cover no-repeat fixed;
+        }
+
+        .bg-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: -1;
+        }
+
+        .scanlines {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(0, 255, 0, 0.03) 0px,
+                rgba(0, 255, 0, 0.03) 1px,
+                transparent 2px,
+                transparent 4px
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Music Player */
+        .music-player {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 18px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            z-index: 100;
+        }
+
+        .music-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .music-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .music-details {
+            display: flex;
+            flex-direction: column;
+            font-size: 0.8rem;
+            color: #ccc;
+            line-height: 1.2;
+        }
+
+        .music-title {
+            font-weight: bold;
+            color: white;
+            font-size: 0.85rem;
+        }
+
+        .music-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: 10px;
+        }
+
+        .music-controls button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .volume-slider {
+            width: 80px;
+            cursor: pointer;
+        }
+
+        /* Main Layout */
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .ui-panel {
+            padding: 50px 70px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.15);
+            text-align: center;
+            color: white;
+        }
+
+        .name {
+            font-family: 'UnifrakturCook', cursive;
+            font-size: 5rem;
+            color: #707070;
+            text-shadow: 0 0 5px #ffffff;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 3rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .accent-line {
+            width: 200px;
+            height: 3px;
+            background: black;
+            margin: 2rem auto;
+        }
+
+        .socials {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .social-link {
+            width: 70px;
+            height: 70px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .social-link:hover {
+            background: white;
+            color: black;
+            transform: scale(1.15);
+        }
+
+        .music-info {
+            margin-top: 3rem;
+            opacity: 0.7;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-overlay"></div>
+    <div class="scanlines"></div>
+
+    <!-- Music Player -->
+    <div class="music-player">
+        <div class="music-icon">
+            <img src="123.jpg" alt="cover">
+        </div>
+
+        <div class="music-details">
+            <div class="music-title">Panadero</div>
+            <div>Hev Abi x LK</div>
+        </div>
+
+        <div class="music-controls">
+            <button id="playBtn">
+                <i class="fas fa-play"></i>
+            </button>
+            <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="30">
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="panadero.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="ui-panel">
+            <div class="name">MIGO</div>
+            <div class="accent-line"></div>
+            <div class="subtitle">SLEEZEEBK ELOHIM HEARTTHROB</div>
+
+            <div class="socials">
+                <a href="https://www.youtube.com/@Migo.xxyzzz" class="social-link" target="_blank">
+                    <i class="fab fa-youtube"></i>
+                </a>
+
+                <a href="https://discord.com/users/1420390943517048923" class="social-link" target="_blank">
+                    <i class="fab fa-discord"></i>
+                </a>
+            </div>
+
+            <div class="music-info">
+                RASCLATV MENU
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audio = document.getElementById('bgMusic');
+        const playBtn = document.getElementById('playBtn');
+        const volumeSlider = document.getElementById('volumeSlider');
+
+        let started = false;
+
+        function startMusic() {
+            if (started) return;
+            started = true;
+
+            audio.volume = 0;
+            audio.play();
+
+            let vol = 0;
+            const fade = setInterval(() => {
+                vol += 0.02;
+                if (vol >= 0.3) {
+                    vol = 0.3;
+                    clearInterval(fade);
+                }
+                audio.volume = vol;
+            }, 100);
+
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+
+        document.addEventListener('click', startMusic);
+        document.addEventListener('keydown', startMusic);
+        document.addEventListener('scroll', startMusic);
+
+        // Play / pause button
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                audio.play();
+                playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audio.pause();
+                playBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        });
+
+        // Volume slider
+        volumeSlider.addEventListener('input', (e) => {
+            audio.volume = e.target.value / 100;
+        });
+    </script>
+</body>
+</html>
